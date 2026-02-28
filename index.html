@@ -202,6 +202,13 @@
             border-radius: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.02);
             border: 1px solid #e9f0f8;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         .stat-label {
@@ -240,7 +247,27 @@
         .chart-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 16px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-header h3 {
+            font-size: 1.1rem;
+            color: #0b2b4f;
+        }
+
+        .chart-header select {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
         }
 
         /* Tables */
@@ -283,6 +310,12 @@
         .status-allocated { background: #fff1d6; color: #a65c00; }
         .status-pending { background: #e0e7ff; color: #283593; }
         .status-transit { background: #f3e8ff; color: #6b21a8; }
+        .status-processing { background: #e0e7ff; color: #283593; }
+        .status-picking { background: #fff1d6; color: #a65c00; }
+        .status-dispatched { background: #f3e8ff; color: #6b21a8; }
+        .status-delivered { background: #dff0e4; color: #0f6e4a; }
+        .status-success { background: #dff0e4; color: #0f6e4a; }
+        .status-warning { background: #fff1d6; color: #a65c00; }
 
         /* Buttons */
         .btn {
@@ -295,6 +328,7 @@
             align-items: center;
             gap: 8px;
             transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
         }
 
         .btn-primary {
@@ -320,6 +354,10 @@
             color: white;
         }
 
+        .btn-success:hover {
+            background: #059669;
+        }
+
         /* Search Bar */
         .search-bar {
             display: flex;
@@ -333,6 +371,12 @@
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #00a1b0;
         }
 
         /* Modal */
@@ -359,6 +403,20 @@
             border-radius: 24px;
             width: 500px;
             max-width: 90%;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #0b2b4f;
+        }
+
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
         }
 
         .modal-actions {
@@ -395,6 +453,7 @@
             border: none;
             background: transparent;
             outline: none;
+            font-family: 'Inter', sans-serif;
         }
 
         .scanner-input button {
@@ -403,6 +462,11 @@
             color: white;
             border: none;
             cursor: pointer;
+            font-weight: 500;
+        }
+
+        .scanner-input button:hover {
+            background: #008c9e;
         }
 
         /* Toast Notifications */
@@ -417,6 +481,18 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             display: none;
             z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
         .toast.show {
@@ -521,7 +597,7 @@
                     </div>
                 </div>
                 <div class="user-section">
-                    <i class="fas fa-bell" style="color: #64748b; cursor: pointer;"></i>
+                    <i class="fas fa-bell" style="color: #64748b; cursor: pointer;" onclick="showToast('Notifications panel')"></i>
                     <div class="user-avatar" onclick="showUserMenu()">JD</div>
                 </div>
             </div>
@@ -529,24 +605,24 @@
             <!-- Dashboard Page -->
             <div id="page-dashboard" class="content-page active-page">
                 <div class="stats-grid">
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="filterByStatus('value')">
                         <div class="stat-label">Total Inventory Value</div>
-                        <div class="stat-value">$1.2M</div>
+                        <div class="stat-value" id="totalInventoryValue">$1,248,500</div>
                         <div class="stat-change">+12.3% vs last month</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="filterByStatus('orders')">
                         <div class="stat-label">Active Orders</div>
-                        <div class="stat-value">87</div>
+                        <div class="stat-value" id="activeOrders">87</div>
                         <div class="stat-change">24 ready to dispatch</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="filterByStatus('lowstock')">
                         <div class="stat-label">Low Stock Items</div>
-                        <div class="stat-value">12</div>
+                        <div class="stat-value" id="lowStockCount">12</div>
                         <div class="stat-change">3 below threshold</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="filterByStatus('shipments')">
                         <div class="stat-label">Today's Shipments</div>
-                        <div class="stat-value">24</div>
+                        <div class="stat-value" id="todayShipments">24</div>
                         <div class="stat-change">On track for 42</div>
                     </div>
                 </div>
@@ -555,26 +631,31 @@
                     <div class="chart-card">
                         <div class="chart-header">
                             <h3>Inventory Movement</h3>
-                            <select id="warehouseFilter" onchange="updateDashboardChart()">
-                                <option>All Warehouses</option>
-                                <option>West Melbourne</option>
-                                <option>Dandenong</option>
-                                <option>Tullamarine</option>
+                            <select id="warehouseFilter" onchange="updateInventoryChart()">
+                                <option value="all">All Warehouses</option>
+                                <option value="West Melbourne">West Melbourne</option>
+                                <option value="Dandenong">Dandenong</option>
+                                <option value="Tullamarine">Tullamarine</option>
                             </select>
                         </div>
-                        <canvas id="inventoryChart" height="200"></canvas>
+                        <div class="chart-container">
+                            <canvas id="inventoryChart"></canvas>
+                        </div>
                     </div>
                     <div class="chart-card">
                         <div class="chart-header">
                             <h3>Order Status</h3>
                         </div>
-                        <canvas id="ordersChart" height="200"></canvas>
+                        <div class="chart-container">
+                            <canvas id="ordersChart"></canvas>
+                        </div>
                     </div>
                 </div>
 
                 <div class="data-table">
-                    <div style="padding: 20px; border-bottom: 1px solid #e9f0f8;">
+                    <div style="padding: 20px; border-bottom: 1px solid #e9f0f8; display: flex; justify-content: space-between; align-items: center;">
                         <h3>Recent Orders</h3>
+                        <button class="btn btn-outline" onclick="viewAllOrders()">View All</button>
                     </div>
                     <table>
                         <thead>
@@ -654,17 +735,17 @@
                 <div class="stats-grid">
                     <div class="stat-card" onclick="filterByWarehouse('West Melbourne')">
                         <div class="stat-label">West Melbourne</div>
-                        <div class="stat-value">4,520</div>
+                        <div class="stat-value" id="westMelbourneQty">4,520</div>
                         <div class="stat-change">items in stock</div>
                     </div>
                     <div class="stat-card" onclick="filterByWarehouse('Dandenong')">
                         <div class="stat-label">Dandenong</div>
-                        <div class="stat-value">3,890</div>
+                        <div class="stat-value" id="dandenongQty">3,890</div>
                         <div class="stat-change">items in stock</div>
                     </div>
                     <div class="stat-card" onclick="filterByWarehouse('Tullamarine')">
                         <div class="stat-label">Tullamarine</div>
-                        <div class="stat-value">5,120</div>
+                        <div class="stat-value" id="tullamarineQty">5,120</div>
                         <div class="stat-change">items in stock</div>
                     </div>
                 </div>
@@ -692,15 +773,16 @@
                 <div class="scanner-panel">
                     <i class="fas fa-barcode" style="font-size: 2rem; color: #0b2b4f;"></i>
                     <div class="scanner-input">
-                        <input type="text" id="pickBarcode" placeholder="Scan item barcode to pick...">
+                        <input type="text" id="pickBarcode" placeholder="Scan item barcode to pick..." onkeypress="handlePickEnter(event)">
                         <button onclick="processPickScan()"><i class="fas fa-camera"></i> Scan</button>
                     </div>
-                    <div id="pickFeedback" style="color: #00a1b0;">Ready to scan</div>
+                    <div id="pickFeedback" style="color: #00a1b0; font-weight: 500;">Ready to scan</div>
                 </div>
 
                 <div class="data-table">
-                    <div style="padding: 20px; border-bottom: 1px solid #e9f0f8;">
+                    <div style="padding: 20px; border-bottom: 1px solid #e9f0f8; display: flex; justify-content: space-between; align-items: center;">
                         <h3>Active Pick Lists</h3>
+                        <button class="btn btn-primary" onclick="createPickList()">New Pick List</button>
                     </div>
                     <table>
                         <thead>
@@ -723,7 +805,7 @@
                 <div class="scanner-panel">
                     <i class="fas fa-qrcode" style="font-size: 2rem; color: #0b2b4f;"></i>
                     <div class="scanner-input">
-                        <input type="text" id="scanBarcode" placeholder="Scan barcode for stocktake/receiving...">
+                        <input type="text" id="scanBarcode" placeholder="Scan barcode for stocktake/receiving..." onkeypress="handleScanEnter(event)">
                         <button onclick="processScan()"><i class="fas fa-camera"></i> Scan</button>
                     </div>
                 </div>
@@ -731,20 +813,20 @@
                 <div class="stats-grid" style="grid-template-columns: repeat(3,1fr);">
                     <div class="stat-card">
                         <div class="stat-label">Today's Scans</div>
-                        <div class="stat-value">342</div>
+                        <div class="stat-value" id="todayScans">342</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Items Verified</div>
-                        <div class="stat-value">287</div>
+                        <div class="stat-value" id="verifiedItems">287</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Exceptions</div>
-                        <div class="stat-value">2</div>
+                        <div class="stat-value" id="scanExceptions">2</div>
                     </div>
                 </div>
 
                 <div class="data-table">
-                    <div style="padding: 20px;">
+                    <div style="padding: 20px; border-bottom: 1px solid #e9f0f8;">
                         <h3>Recent Scans</h3>
                     </div>
                     <table>
@@ -767,22 +849,22 @@
                 <div class="stats-grid" style="grid-template-columns: repeat(3,1fr);">
                     <div class="stat-card">
                         <div class="stat-label">Active Shipments</div>
-                        <div class="stat-value">24</div>
+                        <div class="stat-value" id="activeShipments">24</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">In Transit</div>
-                        <div class="stat-value">12</div>
+                        <div class="stat-value" id="inTransitShipments">12</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Delivered Today</div>
-                        <div class="stat-value">8</div>
+                        <div class="stat-value" id="deliveredToday">8</div>
                     </div>
                 </div>
 
                 <div class="data-table">
-                    <div style="padding: 20px; border-bottom: 1px solid #e9f0f8;">
+                    <div style="padding: 20px; border-bottom: 1px solid #e9f0f8; display: flex; justify-content: space-between; align-items: center;">
                         <h3>Freight Consignments</h3>
-                        <button class="btn btn-outline" style="float: right;" onclick="createConsignment()">
+                        <button class="btn btn-primary" onclick="createConsignment()">
                             <i class="fas fa-plus"></i> New Consignment
                         </button>
                     </div>
@@ -806,7 +888,7 @@
             <!-- Packing Slips Page -->
             <div id="page-packing" class="content-page">
                 <div class="search-bar">
-                    <input type="text" placeholder="Search packing slips...">
+                    <input type="text" id="packingSearch" placeholder="Search packing slips...">
                     <button class="btn btn-primary" onclick="generatePackingSlip()">
                         <i class="fas fa-file-pdf"></i> Generate New
                     </button>
@@ -852,7 +934,7 @@
             <!-- Staff Access Page -->
             <div id="page-staff" class="content-page">
                 <div class="search-bar">
-                    <input type="text" placeholder="Search staff...">
+                    <input type="text" id="staffSearch" placeholder="Search staff...">
                     <button class="btn btn-primary" onclick="showAddStaffModal()">
                         <i class="fas fa-user-plus"></i> Add Staff
                     </button>
@@ -879,11 +961,11 @@
             <!-- MYOB Sync Page -->
             <div id="page-myob" class="content-page">
                 <div style="background: #e8f4fd; padding: 24px; border-radius: 16px; margin-bottom: 24px;">
-                    <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
                         <i class="fas fa-cloud" style="font-size: 3rem; color: #0b2b4f;"></i>
                         <div>
                             <h3>MYOB Business Connection</h3>
-                            <p>Last sync: 2 minutes ago · Status: <span style="color: #10b981;">Connected</span></p>
+                            <p>Last sync: <span id="lastSyncTime">2 minutes ago</span> · Status: <span style="color: #10b981; font-weight: 600;">Connected</span></p>
                         </div>
                         <button class="btn btn-success" style="margin-left: auto;" onclick="syncMYOB()">
                             <i class="fas fa-sync"></i> Sync Now
@@ -894,15 +976,15 @@
                 <div class="stats-grid" style="grid-template-columns: repeat(3,1fr);">
                     <div class="stat-card">
                         <div class="stat-label">Orders Synced</div>
-                        <div class="stat-value">87</div>
+                        <div class="stat-value" id="syncedOrders">87</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Customers</div>
-                        <div class="stat-value">342</div>
+                        <div class="stat-value" id="syncedCustomers">342</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Invoices</div>
-                        <div class="stat-value">156</div>
+                        <div class="stat-value" id="syncedInvoices">156</div>
                     </div>
                 </div>
 
@@ -947,7 +1029,7 @@
             <!-- Audit Logs Page -->
             <div id="page-audit" class="content-page">
                 <div class="search-bar">
-                    <input type="text" placeholder="Filter audit logs...">
+                    <input type="text" id="auditSearch" placeholder="Filter audit logs...">
                     <button class="btn btn-outline" onclick="exportAuditLogs()">
                         <i class="fas fa-download"></i> Export Logs
                     </button>
@@ -975,12 +1057,20 @@
     <!-- Warehouse Selection Modal -->
     <div id="warehouseModal" class="modal">
         <div class="modal-content">
-            <h2 style="margin-bottom: 20px;">Select Warehouse</h2>
+            <h2>Select Warehouse</h2>
             <div style="display: flex; flex-direction: column; gap: 12px;">
-                <div onclick="setWarehouse('All Warehouses')" style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer;">🏢 All Warehouses</div>
-                <div onclick="setWarehouse('West Melbourne')" style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer;">🏭 West Melbourne (4,520 items)</div>
-                <div onclick="setWarehouse('Dandenong')" style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer;">🏭 Dandenong (3,890 items)</div>
-                <div onclick="setWarehouse('Tullamarine')" style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer;">🏭 Tullamarine (5,120 items)</div>
+                <div onclick="setWarehouse('All Warehouses')" style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; hover: background: #f8fafd;">
+                    <i class="fas fa-globe"></i> All Warehouses
+                </div>
+                <div onclick="setWarehouse('West Melbourne')" style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer;">
+                    <i class="fas fa-warehouse"></i> West Melbourne (4,520 items)
+                </div>
+                <div onclick="setWarehouse('Dandenong')" style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer;">
+                    <i class="fas fa-warehouse"></i> Dandenong (3,890 items)
+                </div>
+                <div onclick="setWarehouse('Tullamarine')" style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer;">
+                    <i class="fas fa-warehouse"></i> Tullamarine (5,120 items)
+                </div>
             </div>
             <div class="modal-actions">
                 <button class="btn btn-outline" onclick="closeWarehouseModal()">Cancel</button>
@@ -991,23 +1081,31 @@
     <!-- Add Stock Modal -->
     <div id="addStockModal" class="modal">
         <div class="modal-content">
-            <h2 style="margin-bottom: 20px;">Add Stock</h2>
+            <h2>Add Stock</h2>
             <form onsubmit="addStock(event)">
                 <div style="margin-bottom: 16px;">
-                    <label style="display: block; margin-bottom: 8px;">Product SKU</label>
-                    <input type="text" id="stockSku" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Product SKU</label>
+                    <input type="text" id="stockSku" placeholder="e.g., WID-210" required>
                 </div>
                 <div style="margin-bottom: 16px;">
-                    <label style="display: block; margin-bottom: 8px;">Warehouse</label>
-                    <select id="stockWarehouse" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                        <option>West Melbourne</option>
-                        <option>Dandenong</option>
-                        <option>Tullamarine</option>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Product Name</label>
+                    <input type="text" id="stockProduct" placeholder="Product name" required>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Warehouse</label>
+                    <select id="stockWarehouse" required>
+                        <option value="West Melbourne">West Melbourne</option>
+                        <option value="Dandenong">Dandenong</option>
+                        <option value="Tullamarine">Tullamarine</option>
                     </select>
                 </div>
                 <div style="margin-bottom: 16px;">
-                    <label style="display: block; margin-bottom: 8px;">Quantity</label>
-                    <input type="number" id="stockQuantity" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Quantity</label>
+                    <input type="number" id="stockQuantity" min="1" required>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Barcode</label>
+                    <input type="text" id="stockBarcode" placeholder="Auto-generated if empty">
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-outline" onclick="closeAddStockModal()">Cancel</button>
@@ -1021,16 +1119,21 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // Global state
+        // Global variables
         let currentWarehouse = 'All Warehouses';
-        let inventoryChart, ordersChart;
-
+        let inventoryChart = null;
+        let ordersChart = null;
+        
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing application...');
             initializeData();
             setupEventListeners();
-            initializeCharts();
-            loadAllTables();
+            // Small delay to ensure DOM is ready for charts
+            setTimeout(() => {
+                initializeCharts();
+                loadAllTables();
+            }, 100);
             showToast('System ready · Melbourne ERP MVP');
         });
 
@@ -1042,7 +1145,9 @@
                 { sku: 'DAN-056', product: 'Conduit 20mm 4m', warehouse: 'Dandenong', qty: 2120, status: 'Available', barcode: '82117654' },
                 { sku: 'DAN-102', product: 'Switchboard Panel', warehouse: 'Dandenong', qty: 45, status: 'Pending Dispatch', barcode: '82119823' },
                 { sku: 'TUL-007', product: 'Cable Drum 2.5mm', warehouse: 'Tullamarine', qty: 630, status: 'In Transit', barcode: '77451287' },
-                { sku: 'TUL-088', product: 'LED Floodlight 50W', warehouse: 'Tullamarine', qty: 312, status: 'Available', barcode: '77458812' }
+                { sku: 'TUL-088', product: 'LED Floodlight 50W', warehouse: 'Tullamarine', qty: 312, status: 'Available', barcode: '77458812' },
+                { sku: 'WID-213', product: 'Steel Beam Support', warehouse: 'West Melbourne', qty: 120, status: 'Available', barcode: '93487765' },
+                { sku: 'DAN-108', product: 'Electrical Box 200mm', warehouse: 'Dandenong', qty: 89, status: 'Allocated', barcode: '82115643' }
             ],
             orders: [
                 { id: 'B2B-430', customer: 'Melbourne Constructions', date: '2024-02-28', items: 5, total: 12450, status: 'Processing' },
@@ -1151,6 +1256,7 @@
             switch(page) {
                 case 'dashboard':
                     loadRecentOrders();
+                    updateDashboardStats();
                     break;
                 case 'inventory':
                     loadInventoryTable();
@@ -1166,9 +1272,11 @@
                     break;
                 case 'scanning':
                     loadRecentScans();
+                    updateScanStats();
                     break;
                 case 'freight':
                     loadFreightTable();
+                    updateFreightStats();
                     break;
                 case 'packing':
                     loadPackingSlipsTable();
@@ -1178,6 +1286,7 @@
                     break;
                 case 'myob':
                     loadSyncHistory();
+                    updateMYOBStats();
                     break;
                 case 'alerts':
                     loadAlertsTable();
@@ -1201,8 +1310,118 @@
             loadSyncHistory();
             loadAlertsTable();
             loadAuditLogs();
+            updateDashboardStats();
         }
 
+        // Chart Functions
+        function initializeCharts() {
+            console.log('Initializing charts...');
+            
+            // Destroy existing charts if they exist
+            if (inventoryChart) {
+                inventoryChart.destroy();
+            }
+            if (ordersChart) {
+                ordersChart.destroy();
+            }
+
+            // Inventory Movement Chart
+            const ctx = document.getElementById('inventoryChart').getContext('2d');
+            inventoryChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Stock Level - All Warehouses',
+                        data: [12450, 12380, 12420, 12480, 12510, 12490, 12480],
+                        borderColor: '#00a1b0',
+                        backgroundColor: 'rgba(0, 161, 176, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: '#e2e8f0'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Orders Status Chart
+            const ctx2 = document.getElementById('ordersChart').getContext('2d');
+            ordersChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Processing', 'Picking', 'Dispatched', 'Delivered'],
+                    datasets: [{
+                        data: [35, 28, 15, 22],
+                        backgroundColor: ['#f39c12', '#3498db', '#9b59b6', '#2ecc71'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateInventoryChart() {
+            const filter = document.getElementById('warehouseFilter').value;
+            
+            if (!inventoryChart) {
+                initializeCharts();
+                return;
+            }
+
+            // Update chart data based on filter
+            let newData;
+            let label;
+
+            switch(filter) {
+                case 'West Melbourne':
+                    newData = [4520, 4480, 4510, 4520, 4500, 4490, 4520];
+                    label = 'Stock Level - West Melbourne';
+                    break;
+                case 'Dandenong':
+                    newData = [3890, 3910, 3880, 3890, 3900, 3870, 3890];
+                    label = 'Stock Level - Dandenong';
+                    break;
+                case 'Tullamarine':
+                    newData = [5120, 5100, 5130, 5120, 5140, 5110, 5120];
+                    label = 'Stock Level - Tullamarine';
+                    break;
+                default:
+                    newData = [12450, 12380, 12420, 12480, 12510, 12490, 12480];
+                    label = 'Stock Level - All Warehouses';
+            }
+
+            inventoryChart.data.datasets[0].data = newData;
+            inventoryChart.data.datasets[0].label = label;
+            inventoryChart.update();
+            
+            showToast(`Updated inventory chart for ${filter}`);
+        }
+
+        // Inventory Functions
         function loadInventoryTable() {
             const inventory = JSON.parse(localStorage.getItem('inventory')) || dummyData.inventory;
             let filteredInventory = inventory;
@@ -1213,12 +1432,13 @@
 
             let html = '';
             filteredInventory.forEach(item => {
+                const statusClass = item.status.toLowerCase().replace(' ', '');
                 html += `<tr>
-                    <td>${item.sku}</td>
+                    <td><strong>${item.sku}</strong></td>
                     <td>${item.product}</td>
                     <td>${item.warehouse}</td>
                     <td>${item.qty}</td>
-                    <td><span class="status-badge status-${item.status.toLowerCase().replace(' ', '')}">${item.status}</span></td>
+                    <td><span class="status-badge status-${statusClass}">${item.status}</span></td>
                     <td>${item.barcode}</td>
                     <td>
                         <button class="btn btn-outline" style="padding: 6px 12px;" onclick="editItem('${item.sku}')"><i class="fas fa-edit"></i></button>
@@ -1229,17 +1449,39 @@
             document.getElementById('inventoryTableBody').innerHTML = html;
         }
 
+        function updateDashboardStats() {
+            const inventory = JSON.parse(localStorage.getItem('inventory')) || dummyData.inventory;
+            const orders = JSON.parse(localStorage.getItem('orders')) || dummyData.orders;
+            
+            // Calculate total inventory value (assuming average $50 per item)
+            const totalItems = inventory.reduce((sum, item) => sum + item.qty, 0);
+            const totalValue = totalItems * 50;
+            document.getElementById('totalInventoryValue').textContent = '$' + totalValue.toLocaleString();
+            
+            // Count active orders (not delivered)
+            const activeOrders = orders.filter(o => o.status !== 'Delivered').length;
+            document.getElementById('activeOrders').textContent = activeOrders;
+            
+            // Count low stock items (less than 100 units)
+            const lowStock = inventory.filter(i => i.qty < 100 && i.qty > 0).length;
+            document.getElementById('lowStockCount').textContent = lowStock;
+            
+            // Today's shipments
+            document.getElementById('todayShipments').textContent = Math.floor(Math.random() * 30) + 15;
+        }
+
         function loadOrdersTable() {
             const orders = JSON.parse(localStorage.getItem('orders')) || dummyData.orders;
             let html = '';
             orders.forEach(order => {
+                const statusClass = order.status.toLowerCase();
                 html += `<tr>
                     <td><strong>${order.id}</strong></td>
                     <td>${order.customer}</td>
                     <td>${order.date}</td>
                     <td>${order.items}</td>
                     <td>$${order.total.toLocaleString()}</td>
-                    <td><span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span></td>
+                    <td><span class="status-badge status-${statusClass}">${order.status}</span></td>
                     <td>
                         <button class="btn btn-outline" style="padding: 6px 12px;" onclick="viewOrder('${order.id}')"><i class="fas fa-eye"></i></button>
                         <button class="btn btn-outline" style="padding: 6px 12px;" onclick="processOrder('${order.id}')"><i class="fas fa-play"></i></button>
@@ -1253,12 +1495,13 @@
             const orders = JSON.parse(localStorage.getItem('orders')) || dummyData.orders;
             let html = '';
             orders.slice(0, 5).forEach(order => {
+                const statusClass = order.status.toLowerCase();
                 html += `<tr>
                     <td><strong>${order.id}</strong></td>
                     <td>${order.customer}</td>
                     <td>${order.items}</td>
                     <td>$${order.total.toLocaleString()}</td>
-                    <td><span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span></td>
+                    <td><span class="status-badge status-${statusClass}">${order.status}</span></td>
                     <td><button class="btn btn-outline" onclick="viewOrder('${order.id}')">View</button></td>
                 </tr>`;
             });
@@ -1266,21 +1509,35 @@
         }
 
         function loadWarehousesTable() {
+            const inventory = JSON.parse(localStorage.getItem('inventory')) || dummyData.inventory;
+            
+            // Calculate warehouse stats
             const warehouses = [
-                { name: 'West Melbourne', total: 4520, available: 3240, allocated: 680, pending: 320, transit: 280 },
-                { name: 'Dandenong', total: 3890, available: 2450, allocated: 890, pending: 340, transit: 210 },
-                { name: 'Tullamarine', total: 5120, available: 3870, allocated: 720, pending: 280, transit: 250 }
+                { name: 'West Melbourne', items: inventory.filter(i => i.warehouse === 'West Melbourne') },
+                { name: 'Dandenong', items: inventory.filter(i => i.warehouse === 'Dandenong') },
+                { name: 'Tullamarine', items: inventory.filter(i => i.warehouse === 'Tullamarine') }
             ];
 
             let html = '';
             warehouses.forEach(w => {
+                const total = w.items.reduce((sum, i) => sum + i.qty, 0);
+                const available = w.items.filter(i => i.status === 'Available').reduce((sum, i) => sum + i.qty, 0);
+                const allocated = w.items.filter(i => i.status === 'Allocated').reduce((sum, i) => sum + i.qty, 0);
+                const pending = w.items.filter(i => i.status === 'Pending Dispatch').reduce((sum, i) => sum + i.qty, 0);
+                const transit = w.items.filter(i => i.status === 'In Transit').reduce((sum, i) => sum + i.qty, 0);
+
+                // Update warehouse stats in header
+                if (w.name === 'West Melbourne') document.getElementById('westMelbourneQty').textContent = total.toLocaleString();
+                if (w.name === 'Dandenong') document.getElementById('dandenongQty').textContent = total.toLocaleString();
+                if (w.name === 'Tullamarine') document.getElementById('tullamarineQty').textContent = total.toLocaleString();
+
                 html += `<tr>
                     <td><strong>${w.name}</strong></td>
-                    <td>${w.total}</td>
-                    <td>${w.available}</td>
-                    <td>${w.allocated}</td>
-                    <td>${w.pending}</td>
-                    <td>${w.transit}</td>
+                    <td>${total.toLocaleString()}</td>
+                    <td>${available.toLocaleString()}</td>
+                    <td>${allocated.toLocaleString()}</td>
+                    <td>${pending.toLocaleString()}</td>
+                    <td>${transit.toLocaleString()}</td>
                     <td>
                         <button class="btn btn-outline" onclick="viewWarehouse('${w.name}')">Manage</button>
                     </td>
@@ -1301,6 +1558,7 @@
                     <td>${pl.assignedTo}</td>
                     <td>
                         <button class="btn btn-outline" onclick="startPicking('${pl.id}')">Start</button>
+                        <button class="btn btn-outline" onclick="printPickList('${pl.id}')">Print</button>
                     </td>
                 </tr>`;
             });
@@ -1311,19 +1569,29 @@
             const scans = JSON.parse(localStorage.getItem('scans')) || [];
             let html = '';
             if (scans.length === 0) {
-                html = '<tr><td colspan="5" style="text-align: center;">No recent scans</td></tr>';
+                html = '<tr><td colspan="5" style="text-align: center; padding: 20px;">No recent scans</td></tr>';
             } else {
                 scans.slice(-5).reverse().forEach(scan => {
                     html += `<tr>
                         <td>${scan.time}</td>
                         <td>${scan.barcode}</td>
                         <td>${scan.product}</td>
-                        <td>${scan.action}</td>
+                        <td><span class="status-badge">${scan.action}</span></td>
                         <td>${scan.user}</td>
                     </tr>`;
                 });
             }
             document.getElementById('recentScansTable').innerHTML = html;
+        }
+
+        function updateScanStats() {
+            const scans = JSON.parse(localStorage.getItem('scans')) || [];
+            const today = new Date().toDateString();
+            const todayScans = scans.filter(s => new Date(s.time).toDateString() === today).length;
+            
+            document.getElementById('todayScans').textContent = todayScans || 342;
+            document.getElementById('verifiedItems').textContent = Math.floor((todayScans || 342) * 0.84);
+            document.getElementById('scanExceptions').textContent = Math.floor((todayScans || 342) * 0.01) || 2;
         }
 
         function loadFreightTable() {
@@ -1335,7 +1603,7 @@
                     <td>${f.carrier}</td>
                     <td>${f.destination}</td>
                     <td>${f.items}</td>
-                    <td><span class="status-badge">${f.status}</span></td>
+                    <td><span class="status-badge status-${f.status.toLowerCase().replace(' ', '')}">${f.status}</span></td>
                     <td>${f.tracking}</td>
                     <td>
                         <button class="btn btn-outline" onclick="trackShipment('${f.consignment}')">Track</button>
@@ -1345,11 +1613,18 @@
             document.getElementById('freightTableBody').innerHTML = html;
         }
 
+        function updateFreightStats() {
+            document.getElementById('activeShipments').textContent = '24';
+            document.getElementById('inTransitShipments').textContent = '12';
+            document.getElementById('deliveredToday').textContent = '8';
+        }
+
         function loadPackingSlipsTable() {
             const slips = [
                 { slip: 'PS-2024-001', order: 'B2B-430', customer: 'Melbourne Constructions', items: 5, generated: '10:30 AM', barcode: '93481234' },
                 { slip: 'PS-2024-002', order: 'B2B-431', customer: 'Dandenong Electrical', items: 3, generated: '10:15 AM', barcode: '82117654' },
-                { slip: 'PS-2024-003', order: 'B2B-432', customer: 'Westside Builders', items: 8, generated: '09:45 AM', barcode: '77451287' }
+                { slip: 'PS-2024-003', order: 'B2B-432', customer: 'Westside Builders', items: 8, generated: '09:45 AM', barcode: '77451287' },
+                { slip: 'PS-2024-004', order: 'B2B-433', customer: 'Tullamarine Logistics', items: 2, generated: '09:30 AM', barcode: '93489901' }
             ];
 
             let html = '';
@@ -1373,13 +1648,14 @@
             const staff = dummyData.staff;
             let html = '';
             staff.forEach(s => {
+                const statusClass = s.status.toLowerCase();
                 html += `<tr>
                     <td>${s.name}</td>
                     <td>${s.email}</td>
                     <td><span class="status-badge">${s.role}</span></td>
                     <td>${s.permissions}</td>
                     <td>${s.lastActive}</td>
-                    <td><span class="status-badge status-${s.status.toLowerCase()}">${s.status}</span></td>
+                    <td><span class="status-badge status-${statusClass}">${s.status}</span></td>
                     <td>
                         <button class="btn btn-outline" onclick="editStaff('${s.email}')">Edit</button>
                     </td>
@@ -1392,15 +1668,22 @@
             const history = dummyData.syncHistory;
             let html = '';
             history.forEach(h => {
+                const statusClass = h.status.toLowerCase();
                 html += `<tr>
                     <td>${h.time}</td>
                     <td>${h.type}</td>
                     <td>${h.records}</td>
-                    <td><span class="status-badge status-${h.status.toLowerCase()}">${h.status}</span></td>
+                    <td><span class="status-badge status-${statusClass}">${h.status}</span></td>
                     <td>${h.errors}</td>
                 </tr>`;
             });
             document.getElementById('syncHistoryTable').innerHTML = html;
+        }
+
+        function updateMYOBStats() {
+            document.getElementById('syncedOrders').textContent = '87';
+            document.getElementById('syncedCustomers').textContent = '342';
+            document.getElementById('syncedInvoices').textContent = '156';
         }
 
         function loadAlertsTable() {
@@ -1439,65 +1722,19 @@
             document.getElementById('auditLogsTable').innerHTML = html;
         }
 
-        // Chart Initialization
-        function initializeCharts() {
-            // Inventory Movement Chart
-            const ctx = document.getElementById('inventoryChart').getContext('2d');
-            inventoryChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'Stock Level',
-                        data: [12450, 12380, 12420, 12480, 12510, 12490, 12480],
-                        borderColor: '#00a1b0',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-
-            // Orders Status Chart
-            const ctx2 = document.getElementById('ordersChart').getContext('2d');
-            ordersChart = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Processing', 'Picking', 'Dispatched', 'Delivered'],
-                    datasets: [{
-                        data: [35, 28, 15, 22],
-                        backgroundColor: ['#f39c12', '#3498db', '#9b59b6', '#2ecc71']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-        }
-
-        function updateDashboardChart() {
-            const filter = document.getElementById('warehouseFilter').value;
-            inventoryChart.data.datasets[0].label = `Stock Level - ${filter}`;
-            
-            // Simulate different data based on warehouse
-            if (filter === 'West Melbourne') {
-                inventoryChart.data.datasets[0].data = [4520, 4480, 4510, 4520, 4500, 4490, 4520];
-            } else if (filter === 'Dandenong') {
-                inventoryChart.data.datasets[0].data = [3890, 3910, 3880, 3890, 3900, 3870, 3890];
-            } else if (filter === 'Tullamarine') {
-                inventoryChart.data.datasets[0].data = [5120, 5100, 5130, 5120, 5140, 5110, 5120];
-            } else {
-                inventoryChart.data.datasets[0].data = [12450, 12380, 12420, 12480, 12510, 12490, 12480];
-            }
-            
-            inventoryChart.update();
-            showToast(`Updated chart for ${filter}`);
-        }
-
         // Barcode Scanning Functions
+        function handlePickEnter(event) {
+            if (event.key === 'Enter') {
+                processPickScan();
+            }
+        }
+
+        function handleScanEnter(event) {
+            if (event.key === 'Enter') {
+                processScan();
+            }
+        }
+
         function processPickScan() {
             const barcode = document.getElementById('pickBarcode').value;
             if (!barcode) {
@@ -1525,6 +1762,7 @@
                 
                 showToast(`Item picked: ${item.product}`);
                 loadRecentScans();
+                updateScanStats();
             } else {
                 document.getElementById('pickFeedback').innerHTML = '❌ Item not found';
                 showToast('Barcode not found in system');
@@ -1557,6 +1795,7 @@
                 
                 showToast(`Scanned: ${item.product}`);
                 loadRecentScans();
+                updateScanStats();
             } else {
                 showToast('Barcode not recognized');
             }
@@ -1577,12 +1816,13 @@
 
             let html = '';
             filtered.forEach(item => {
+                const statusClass = item.status.toLowerCase().replace(' ', '');
                 html += `<tr>
-                    <td>${item.sku}</td>
+                    <td><strong>${item.sku}</strong></td>
                     <td>${item.product}</td>
                     <td>${item.warehouse}</td>
                     <td>${item.qty}</td>
-                    <td><span class="status-badge status-${item.status.toLowerCase().replace(' ', '')}">${item.status}</span></td>
+                    <td><span class="status-badge status-${statusClass}">${item.status}</span></td>
                     <td>${item.barcode}</td>
                     <td>
                         <button class="btn btn-outline" style="padding: 6px 12px;" onclick="editItem('${item.sku}')"><i class="fas fa-edit"></i></button>
@@ -1604,13 +1844,14 @@
 
             let html = '';
             filtered.forEach(order => {
+                const statusClass = order.status.toLowerCase();
                 html += `<tr>
                     <td><strong>${order.id}</strong></td>
                     <td>${order.customer}</td>
                     <td>${order.date}</td>
                     <td>${order.items}</td>
                     <td>$${order.total.toLocaleString()}</td>
-                    <td><span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span></td>
+                    <td><span class="status-badge status-${statusClass}">${order.status}</span></td>
                     <td>
                         <button class="btn btn-outline" style="padding: 6px 12px;" onclick="viewOrder('${order.id}')"><i class="fas fa-eye"></i></button>
                         <button class="btn btn-outline" style="padding: 6px 12px;" onclick="processOrder('${order.id}')"><i class="fas fa-play"></i></button>
@@ -1620,11 +1861,33 @@
             document.getElementById('ordersTableBody').innerHTML = html;
         }
 
+        function filterByStatus(type) {
+            switch(type) {
+                case 'value':
+                    showToast('Viewing inventory value details');
+                    break;
+                case 'orders':
+                    navigateToPage('orders');
+                    break;
+                case 'lowstock':
+                    navigateToPage('inventory');
+                    document.getElementById('inventorySearch').value = 'low';
+                    filterInventory();
+                    break;
+                case 'shipments':
+                    navigateToPage('freight');
+                    break;
+            }
+        }
+
         function filterByWarehouse(warehouse) {
             currentWarehouse = warehouse;
             document.getElementById('selected-warehouse').textContent = warehouse;
-            loadInventoryTable();
-            showToast(`Filtering by ${warehouse}`);
+            if (document.getElementById('page-inventory').classList.contains('active-page')) {
+                loadInventoryTable();
+            }
+            navigateToPage('inventory');
+            showToast(`Viewing ${warehouse} inventory`);
         }
 
         // Modal Functions
@@ -1640,7 +1903,9 @@
             currentWarehouse = warehouse;
             document.getElementById('selected-warehouse').textContent = warehouse;
             closeWarehouseModal();
-            loadInventoryTable();
+            if (document.getElementById('page-inventory').classList.contains('active-page')) {
+                loadInventoryTable();
+            }
             showToast(`Selected: ${warehouse}`);
         }
 
@@ -1650,14 +1915,26 @@
 
         function closeAddStockModal() {
             document.getElementById('addStockModal').classList.remove('active');
+            // Reset form
+            document.getElementById('stockSku').value = '';
+            document.getElementById('stockProduct').value = '';
+            document.getElementById('stockQuantity').value = '';
+            document.getElementById('stockBarcode').value = '';
         }
 
         function addStock(event) {
             event.preventDefault();
             
             const sku = document.getElementById('stockSku').value;
+            const product = document.getElementById('stockProduct').value;
             const warehouse = document.getElementById('stockWarehouse').value;
             const quantity = parseInt(document.getElementById('stockQuantity').value);
+            let barcode = document.getElementById('stockBarcode').value;
+
+            // Generate barcode if not provided
+            if (!barcode) {
+                barcode = Math.floor(Math.random() * 100000000).toString();
+            }
 
             const inventory = JSON.parse(localStorage.getItem('inventory')) || dummyData.inventory;
             const existingItem = inventory.find(i => i.sku === sku && i.warehouse === warehouse);
@@ -1669,11 +1946,11 @@
                 // Create new item
                 const newItem = {
                     sku: sku,
-                    product: 'New Product',
+                    product: product,
                     warehouse: warehouse,
                     qty: quantity,
                     status: 'Available',
-                    barcode: Math.floor(Math.random() * 100000000).toString()
+                    barcode: barcode
                 };
                 inventory.push(newItem);
                 showToast(`Added new item: ${sku}`);
@@ -1681,11 +1958,8 @@
 
             localStorage.setItem('inventory', JSON.stringify(inventory));
             loadInventoryTable();
+            updateDashboardStats();
             closeAddStockModal();
-            
-            // Reset form
-            document.getElementById('stockSku').value = '';
-            document.getElementById('stockQuantity').value = '';
         }
 
         function showNewOrderModal() {
@@ -1717,6 +1991,10 @@
             showToast(`Processing order: ${orderId}`);
         }
 
+        function viewAllOrders() {
+            navigateToPage('orders');
+        }
+
         function viewWarehouse(warehouse) {
             currentWarehouse = warehouse;
             document.getElementById('selected-warehouse').textContent = warehouse;
@@ -1725,6 +2003,14 @@
 
         function startPicking(pickListId) {
             showToast(`Starting pick list: ${pickListId}`);
+        }
+
+        function printPickList(pickListId) {
+            showToast(`Printing pick list: ${pickListId}`);
+        }
+
+        function createPickList() {
+            showToast('Creating new pick list');
         }
 
         function trackShipment(consignment) {
@@ -1765,22 +2051,55 @@
                 document.getElementById('trackingResult').style.display = 'block';
                 document.getElementById('trackingDetails').innerHTML = `
                     <div style="background: #f8fafd; padding: 20px; border-radius: 12px;">
-                        <h4>Order: ${search}</h4>
-                        <p><strong>Status:</strong> In Transit</p>
+                        <h4 style="margin-bottom: 16px;">Order: ${search}</h4>
+                        <p><strong>Status:</strong> <span class="status-badge status-transit">In Transit</span></p>
                         <p><strong>Estimated Delivery:</strong> Tomorrow by 5pm</p>
                         <p><strong>Current Location:</strong> Melbourne Sorting Facility</p>
                         <p><strong>Carrier:</strong> Australia Post</p>
                         <p><strong>Tracking #:</strong> AUS${Math.floor(Math.random() * 1000000)}</p>
+                        <div style="margin-top: 20px;">
+                            <h5>Tracking History:</h5>
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">✅ 10:30 AM - Delivered to Melbourne facility</li>
+                                <li style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">📦 08:15 AM - Picked up from Dandenong warehouse</li>
+                                <li style="padding: 8px 0;">📝 07:00 AM - Label created</li>
+                            </ul>
+                        </div>
                     </div>
                 `;
                 showToast(`Tracking order: ${search}`);
+            } else {
+                showToast('Please enter an order number');
             }
         }
 
         function syncMYOB() {
+            const syncBtn = event.currentTarget;
+            const originalText = syncBtn.innerHTML;
+            syncBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
+            syncBtn.disabled = true;
+            
             showToast('Syncing with MYOB Business...');
+            
             setTimeout(() => {
+                // Update last sync time
+                document.getElementById('lastSyncTime').textContent = 'Just now';
+                
+                // Add to sync history
+                const history = dummyData.syncHistory;
+                history.unshift({
+                    time: 'Just now',
+                    type: 'Manual Sync',
+                    records: 8,
+                    status: 'Success',
+                    errors: 0
+                });
+                
+                loadSyncHistory();
                 showToast('MYOB sync completed successfully');
+                
+                syncBtn.innerHTML = originalText;
+                syncBtn.disabled = false;
             }, 2000);
         }
 
